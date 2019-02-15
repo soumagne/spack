@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+from spack import *
+import os
 
 class Fio(AutotoolsPackage):
     """Flexible I/O Tester.
@@ -18,6 +20,7 @@ class Fio(AutotoolsPackage):
 
     version('3.19', sha256='809963b1d023dbc9ac7065557af8129aee17b6895e0e8c5ca671b0b14285f404')
     version('3.16', sha256='c7731a9e831581bab7104da9ea60c9f44e594438dbe95dff26726ca0285e7b93')
+    version('3.3',  sha256='75e2ce17e17918eb4e79d4ac46d99ba1a5e7c0808b7973fb191c6177b2e5755a')
     version('2.19', sha256='61fb03a18703269b781aaf195cb0d7931493bbb5bfcc8eb746d5d66d04ed77f7')
 
     variant('gui', default=False, description='Enable building of gtk gfio')
@@ -49,3 +52,29 @@ class Fio(AutotoolsPackage):
         if '+doc' in self.spec:
             make('-C', 'doc', 'html')
             make('-C', 'doc', 'man')
+
+    @run_after('install')
+    def install_additional_files(self):
+        spec = self.spec
+        prefix = self.prefix
+
+        # Copy the config.h file, as some packages might require it
+        mkdir(prefix.include)
+        for file in os.listdir(self.stage.source_path):
+            if file.endswith(".h"):
+                install(file, prefix.include)
+        mkdir(join_path(prefix.include, 'lib'))
+        for file in os.listdir(join_path(self.stage.source_path, 'lib')):
+            if file.endswith(".h"):
+                install(join_path('lib', file), join_path(prefix.include, 'lib'))
+        install_tree('arch', join_path(prefix.include, 'arch'))
+        install_tree('compiler', join_path(prefix.include, 'compiler'))
+        mkdir(join_path(prefix.include, 'os'))
+        for file in os.listdir(join_path(self.stage.source_path, 'os')):
+            if file.endswith(".h"):
+                install(join_path('os', file), join_path(prefix.include, 'os'))
+        mkdir(join_path(prefix.include, 'oslib'))
+        for file in os.listdir(join_path(self.stage.source_path, 'oslib')):
+            if file.endswith(".h"):
+                install(join_path('oslib', file), join_path(prefix.include, 'oslib'))
+ 

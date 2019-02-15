@@ -230,6 +230,7 @@ class Openmpi(AutotoolsPackage):
             description="Build support for the Singularity container")
     variant('lustre', default=False,
             description="Lustre filesystem library support")
+    variant('pmix', default=False, description='Enable PMIx support')
     # Adding support to build a debug version of OpenMPI that activates
     # Memchecker, as described here:
     #
@@ -271,6 +272,8 @@ class Openmpi(AutotoolsPackage):
     # See #7483 for context.
     depends_on('hwloc@:1.999', when='@:3.999.9999')
 
+    depends_on('libevent')
+
     depends_on('hwloc +cuda', when='+cuda')
     depends_on('java', when='+java')
     depends_on('sqlite', when='+sqlite3@:1.11')
@@ -279,6 +282,8 @@ class Openmpi(AutotoolsPackage):
     # Singularity release 3 works better
     depends_on('singularity@3.0.0:', when='+singularity')
     depends_on('lustre', when='+lustre')
+
+    depends_on('pmix@2.0:', when='@:4.0.0+pmix')
 
     depends_on('opa-psm2', when='fabrics=psm2')
     depends_on('rdma-core', when='fabrics=verbs')
@@ -677,6 +682,17 @@ class Openmpi(AutotoolsPackage):
         # Hwloc support
         if spec.satisfies('@1.5.2:'):
             config_args.append('--with-hwloc={0}'.format(spec['hwloc'].prefix))
+
+        # PMIx support
+        if spec.satisfies('@3.0.0:'):
+            config_args.append('--enable-orterun-prefix-by-default')
+            if '+pmix' in spec:
+                config_args.append('--with-pmix={0}'.format(spec['pmix'].prefix))
+
+        # libevent support
+        if spec.satisfies('@3.0.0:'):
+            config_args.append('--with-libevent={0}'.format(spec['libevent'].prefix))
+
         # Java support
         if spec.satisfies('@1.7.4:'):
             if '+java' in spec:

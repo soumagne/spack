@@ -219,6 +219,7 @@ class Openmpi(AutotoolsPackage):
     variant('cxx', default=False, description='Enable C++ MPI bindings')
     variant('cxx_exceptions', default=False, description='Enable C++ Exception support')
     variant('gpfs', default=True, description='Enable GPFS support (if present)')
+    variant('pmix', default=False, description='Enable PMIx support')
     # Adding support to build a debug version of OpenMPI that activates
     # Memchecker, as described here:
     #
@@ -253,6 +254,7 @@ class Openmpi(AutotoolsPackage):
 
     depends_on('pkgconfig', type='build')
 
+    depends_on('libevent')
     depends_on('hwloc')
     # ompi@:3.0.0 doesn't support newer hwloc releases:
     # "configure: error: OMPI does not currently support hwloc v2 API"
@@ -265,6 +267,8 @@ class Openmpi(AutotoolsPackage):
     depends_on('sqlite', when='+sqlite3@:1.11')
     depends_on('zlib', when='@3.0.0:')
     depends_on('valgrind~mpi', when='+memchecker')
+
+    depends_on('pmix@2.0:', when='@:4.0.0+pmix')
 
     depends_on('opa-psm2', when='fabrics=psm2')
     depends_on('rdma-core', when='fabrics=verbs')
@@ -531,6 +535,17 @@ class Openmpi(AutotoolsPackage):
         # Hwloc support
         if spec.satisfies('@1.5.2:'):
             config_args.append('--with-hwloc={0}'.format(spec['hwloc'].prefix))
+
+        # PMIx support
+        if spec.satisfies('@3.0.0:'):
+            config_args.append('--enable-orterun-prefix-by-default')
+            if '+pmix' in spec:
+                config_args.append('--with-pmix={0}'.format(spec['pmix'].prefix))
+
+        # libevent support
+        if spec.satisfies('@3.0.0:'):
+            config_args.append('--with-libevent={0}'.format(spec['libevent'].prefix))
+
         # Java support
         if spec.satisfies('@1.7.4:'):
             if '+java' in spec:

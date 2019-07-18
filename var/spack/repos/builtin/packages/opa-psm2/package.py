@@ -12,8 +12,15 @@ class OpaPsm2(MakefilePackage):
     homepage = "http://github.com/intel/opa-psm2"
     url      = "https://github.com/intel/opa-psm2/archive/PSM2_10.3-8.tar.gz"
 
+    version('11.2.185', sha256='8c0446e989feb4a3822791e4a3687060916f7c4612d1e8e493879be66f10db09')
+    version('11.2.173', sha256='5602fe8c786118cf76b26eb87b202fd8317e7691e25353bb8e3837fa61caa5fc')
+    version('11.2.156', sha256='ebb7aadb23bd4fca0f25ce2cc1e6baf654e1e24789fb792ef277c0b8e44849ec')
+    version('11.2.89', sha256='480ba7700240f6a671c766405f66c2c3270901c8c26bab8a4c198f0b880d6d90')
+    version('11.2.86', sha256='a5fb4412ddb5b12ab0e67bdd96fe7c010e0ffb2f332bdf4fe28c52bc31acf104')
+    version('11.2.78', sha256='b562af3ed8a00fc99ba7a483be83cfa4368fb26927852a0777432007bd71623a')
     version('11.2.77', sha256='5cc33d1e19d871a5861efe0bb897526f404b4bf2b88ac58bb277db96ac5ecb54')
     version('11.2.68', sha256='42e16a14fc8c90b50855dcea46af3315bee32fb1ae89d83060f9b2ebdce1ec26')
+    version('11.2.23', sha256='7ade2b166fca7cf86fa57f369e9633625a89d241ca4a9c1bcf9901a1feffb0d8')
     version('10.3-37',  sha256='43e46f6fb345db67bb45b48e2b2bb05f590f7ccbc3ee337b33312043b46946b9')
     version('10.3-17',  sha256='17704cd4d9aeffb0d90d4ead3ad6f637bcd4cf030880e2cb2de192235859779e')
     version('10.3-10',  sha256='08d2821aa84645b93b2617dae355fcac5b690e42873c4946f2e91fa25e5a7372')

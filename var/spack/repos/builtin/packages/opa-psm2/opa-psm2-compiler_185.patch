@@ -1,0 +1,13 @@
+diff --git a/buildflags.mak b/buildflags.mak
+index 7c3cda0..103f5c6 100644
+--- a/buildflags.mak
++++ b/buildflags.mak
+@@ -60,7 +60,7 @@ endif
+ export os ?= $(shell uname -s | tr '[A-Z]' '[a-z]')
+ export arch := $(shell uname -m | sed -e 's,\(i[456]86\|athlon$$\),i386,')
+ 
+-ifeq (${CCARCH},$(filter ${CCARCH},gcc gcc4 icc clang))
++ifeq (${CCARCH},$(filter ${CCARCH},cc gcc gcc4 icc clang))
+ 	export CC := ${CCARCH}
+ else
+ 	anerr := $(error Unknown C compiler arch: ${CCARCH})

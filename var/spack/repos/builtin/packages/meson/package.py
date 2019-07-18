@@ -29,7 +29,7 @@ class Meson(PythonPackage):
     version('0.41.2', sha256='2daf448d3f2479d60e30617451f09bf02d26304dd1bd12ee1de936a53e42c7a4')
     version('0.41.1', sha256='a48901f02ffeb9ff5cf5361d71b1fca202f9cd72998043ad011fc5de0294cf8b')
 
-    depends_on('python@3.5:', type=('build', 'run'))
+    depends_on('python', type=('build', 'run'))
     depends_on('py-setuptools', type=('build', 'run'))
     depends_on('ninja', type='run')
 

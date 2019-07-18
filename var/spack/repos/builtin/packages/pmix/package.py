@@ -47,6 +47,7 @@ class Pmix(AutotoolsPackage):
     version('2.1.4',    sha256='eb72d292e76e200f02cf162a477eecea2559ef3ac2edf50ee95b3fe3983d033e')
     version('2.1.3',    sha256='281283133498e7e5999ed5c6557542c22408bc9eb51ecbcf7696160616782a41')
     version('2.1.2',    sha256='94bb9c801c51a6caa1b8cef2b85ecf67703a5dfa4d79262e6668c37c744bb643')
+    version('2.1.1',    sha256='1530a40d76474ebdd98581d2c6d4be57c928e69a2b86e11afc4643fde2a667e0')
     version('2.0.1',    sha256='ba6e0f32936b1859741adb221e18b2c1ee7dc53a6b374b9f7831adf1692b15fd')
     version('1.2.5',    sha256='a2b02d489ee730c06ee40e7f9ffcebb6c35bcb4f95153fab7c4276a3add6ae31')
 

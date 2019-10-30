@@ -61,6 +61,7 @@ class Hdf5(AutotoolsPackage):
     variant('threadsafe', default=False,
             description='Enable thread-safe capabilities')
 
+    variant('map', default=False, description='Enable map API support')
     variant('mpi', default=True, description='Enable MPI support')
     variant('szip', default=False, description='Enable szip support')
     variant('pic', default=True,
@@ -289,6 +290,9 @@ class Hdf5(AutotoolsPackage):
                 'CXXFLAGS=' + self.compiler.cxx_pic_flag,
                 'FCFLAGS='  + self.compiler.fc_pic_flag,
             ])
+
+        if '+map' in self.spec:
+            extra_args.append('--enable-map-api')
 
         if '+mpi' in self.spec:
             # The HDF5 configure script warns if cxx and mpi are enabled

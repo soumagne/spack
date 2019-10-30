@@ -17,11 +17,16 @@ class Hdf5(AutotoolsPackage):
     url      = "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.7/src/hdf5-1.10.7.tar.gz"
     list_url = "https://support.hdfgroup.org/ftp/HDF5/releases"
     list_depth = 3
-    git      = "https://bitbucket.hdfgroup.org/scm/hdffv/hdf5.git"
+    git      = "https://github.com/HDFGroup/hdf5.git"
     maintainers = ['lrknox']
 
     version('develop', branch='develop')
 
+    # Experimental
+    version('1.13.0rc5', tag='hdf5-1_13_0-rc5')
+    version('1.12.1rc1', tag='hdf5-1.12.1-rc1')
+
+    # Releases
     version('1.12.0', sha256='a62dcb276658cb78e6795dd29bf926ed7a9bc4edf6e77025cd2c689a8f97c17a')
 
     # HDF5 1.12 broke API compatibility, so we currently prefer the latest
@@ -60,6 +65,7 @@ class Hdf5(AutotoolsPackage):
     variant('threadsafe', default=False,
             description='Enable thread-safe capabilities')
 
+    variant('map', default=False, description='Enable map API support')
     variant('mpi', default=True, description='Enable MPI support')
     variant('szip', default=False, description='Enable szip support')
     variant('pic', default=True,
@@ -71,11 +77,21 @@ class Hdf5(AutotoolsPackage):
     conflicts('api=v112', when='@1.6:1.10.99', msg='v112 is not compatible with this release')
     conflicts('api=v110', when='@1.6:1.8.99', msg='v110 is not compatible with this release')
     conflicts('api=v18', when='@1.6:1.6.99', msg='v18 is not compatible with this release')
+    conflicts('+map', when='@:1.10.99', msg='Map API support is only available from v1.12')
 
     depends_on('autoconf', type='build', when='@develop')
     depends_on('automake', type='build', when='@develop')
     depends_on('libtool',  type='build', when='@develop')
     depends_on('m4',       type='build', when='@develop')
+    depends_on('autoconf', type='build', when='@1.13.0rc5')
+    depends_on('automake', type='build', when='@1.13.0rc5')
+    depends_on('libtool',  type='build', when='@1.13.0rc5')
+    depends_on('m4',       type='build', when='@1.13.0rc5')
+    depends_on('autoconf', type='build', when='@1.12.1rc1')
+    depends_on('automake', type='build', when='@1.12.1rc1')
+    depends_on('libtool',  type='build', when='@1.12.1rc1')
+    depends_on('m4',       type='build', when='@1.12.1rc1')
+
 
     depends_on('mpi', when='+mpi')
     depends_on('java', when='+java')
@@ -154,6 +170,16 @@ class Hdf5(AutotoolsPackage):
         return url.format(version.up_to(2), version)
 
     @when('@develop')
+    def autoreconf(self, spec, prefix):
+        autogen = Executable('./autogen.sh')
+        autogen()
+
+    @when('@1.13.0rc5')
+    def autoreconf(self, spec, prefix):
+        autogen = Executable('./autogen.sh')
+        autogen()
+
+    @when('@1.12.1rc1')
     def autoreconf(self, spec, prefix):
         autogen = Executable('./autogen.sh')
         autogen()
@@ -290,6 +316,9 @@ class Hdf5(AutotoolsPackage):
                 'CXXFLAGS=' + self.compiler.cxx_pic_flag,
                 'FCFLAGS='  + self.compiler.fc_pic_flag,
             ])
+
+        if '+map' in self.spec:
+            extra_args.append('--enable-map-api')
 
         if '+mpi' in self.spec:
             # The HDF5 configure script warns if cxx and mpi are enabled

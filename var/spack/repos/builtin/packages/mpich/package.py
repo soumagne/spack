@@ -49,6 +49,7 @@ class Mpich(AutotoolsPackage, CudaPackage, ROCmPackage):
     variant('romio', default=True,  description='Enable ROMIO MPI I/O implementation')
     variant('verbs', default=False, description='Build support for OpenFabrics verbs.')
     variant('slurm', default=False, description='Enable SLURM support')
+    variant('daos', default=False, description='Enable DAOS support')
     variant('wrapperrpath', default=True, description='Enable wrapper rpath')
     variant(
         'pmi',
@@ -203,6 +204,9 @@ with '-Wl,-commons,use_dylibs' and without
     depends_on('libpciaccess', when="@3.3:+pci")
     depends_on('libxml2', when='@3.3:+libxml2')
 
+    depends_on('daos', when='+daos')
+    depends_on('cart', when='+daos^daos@:1.0.0')
+
     # Starting with version 3.3, Hydra can use libslurm for nodelist parsing
     depends_on('slurm', when='+slurm')
 
@@ -247,6 +251,9 @@ with '-Wl,-commons,use_dylibs' and without
 
     # see https://github.com/pmodels/mpich/pull/5031
     conflicts('%clang@:7', when='@3.4:3.4.1')
+
+    # daos support
+    conflicts('+daos', when='@:3.3')
 
     @run_after('configure')
     def patch_cce(self):
@@ -488,6 +495,19 @@ with '-Wl,-commons,use_dylibs' and without
 
         if '~fortran' in spec:
             config_args.append('--disable-fortran')
+
+        if '+daos' in spec:
+            config_args.append('--with-daos={0}'.format(
+                spec['daos'].prefix))
+            config_args.append('--with-file-system=ufs+daos')
+
+        if '+daos^daos@:1.0.0' in spec:
+            config_args.append('--with-cart={0}'.format(
+                spec['cart'].prefix))
+
+        if '+daos^daos@1.1.0:' in spec:
+            config_args.append('--with-cart={0}'.format(
+                spec['daos'].prefix))
 
         if '+slurm' in spec:
             config_args.append('--with-slurm=yes')

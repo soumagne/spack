@@ -36,6 +36,7 @@ class Mpich(AutotoolsPackage):
     variant('romio', default=True,  description='Enable ROMIO MPI I/O implementation')
     variant('verbs', default=False, description='Build support for OpenFabrics verbs.')
     variant('slurm', default=False, description='Enable SLURM support')
+    variant('daos', default=False, description='Enable DAOS support')
     variant('wrapperrpath', default=True, description='Enable wrapper rpath')
     variant(
         'pmi',
@@ -136,6 +137,9 @@ spack package at this time.''',
     depends_on('libpciaccess', when="@3.3:+pci")
     depends_on('libxml2', when='@3.3:+libxml2')
 
+    depends_on('daos', when='+daos')
+    depends_on('cart', when='+daos^daos@:1.0.0')
+
     # Starting with version 3.3, Hydra can use libslurm for nodelist parsing
     depends_on('slurm', when='+slurm')
 
@@ -152,6 +156,8 @@ spack package at this time.''',
     depends_on('libtool@2.4.4:', when='@3.3 +hwloc', type="build")
     depends_on("m4", when="@3.3 +hwloc", type="build"),
     depends_on("autoconf@2.67:", when='@3.3 +hwloc', type="build")
+
+    conflicts('+daos', when='@:3.3')
 
     conflicts('device=ch4', when='@:3.2')
     conflicts('netmod=ofi', when='@:3.1.4')
@@ -254,6 +260,19 @@ spack package at this time.''',
             '--enable-wrapper-rpath={0}'.format('no' if '~wrapperrpath' in
                                                 spec else 'yes')
         ]
+
+        if '+daos' in spec:
+            config_args.append('--with-daos={0}'.format(
+                spec['daos'].prefix))
+            config_args.append('--with-file-system=ufs+daos')
+
+        if '+daos^daos@:1.0.0' in spec:
+            config_args.append('--with-cart={0}'.format(
+                spec['cart'].prefix))
+
+        if '+daos^daos@master' in spec:
+            config_args.append('--with-cart={0}'.format(
+                spec['daos'].prefix))
 
         if '+slurm' in spec:
             config_args.append('--with-slurm=yes')

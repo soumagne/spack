@@ -64,6 +64,7 @@ class Mpich(AutotoolsPackage, CudaPackage, ROCmPackage):
     variant("hwloc", default=True, description="Use external hwloc package")
     variant("hydra", default=True, description="Build the hydra process manager")
     variant("romio", default=True, description="Enable ROMIO MPI I/O implementation")
+    variant('daos', default=False, when='@3.4:', description='Enable DAOS support')
     variant("verbs", default=False, description="Build support for OpenFabrics verbs.")
     variant("slurm", default=False, description="Enable Slurm support")
     variant("wrapperrpath", default=True, description="Enable wrapper rpath")
@@ -278,6 +279,8 @@ supported, and netmod is ignored if device is ch3:sock.""",
     # Starting with version 3.3, MPICH uses hwloc directly.
     depends_on("libpciaccess", when="@3.3:+pci")
     depends_on("libxml2", when="@3.3:+libxml2")
+
+    depends_on('daos', when='+daos')
 
     # Starting with version 3.3, Hydra can use libslurm for nodelist parsing
     depends_on("slurm", when="+slurm")
@@ -543,6 +546,11 @@ supported, and netmod is ignored if device is ch3:sock.""",
 
         if "~fortran" in spec:
             config_args.append("--disable-fortran")
+
+        if '+daos' in spec:
+            config_args.append('--with-daos={0}'.format(
+                spec['daos'].prefix))
+            config_args.append('--with-file-system=ufs+daos')
 
         if "+slurm" in spec:
             config_args.append("--with-slurm=yes")

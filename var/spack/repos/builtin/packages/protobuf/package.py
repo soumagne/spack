@@ -48,7 +48,7 @@ class Protobuf(Package):
             description='The build type to build',
             values=('Debug', 'Release'))
 
-    depends_on('cmake', when='@3.0.2:', type='build')
+    depends_on('cmake@3.1.3:', when='@3.0.2:', type='build')
     depends_on('zlib')
     depends_on('autoconf', type='build', when='@2.5.0')
     depends_on('automake', type='build', when='@2.5.0')

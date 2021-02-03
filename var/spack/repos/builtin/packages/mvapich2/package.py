@@ -134,7 +134,7 @@ class Mvapich2(AutotoolsPackage):
     )
 
     # Add support for daos adio driver
-    patch('mvapich2_ad_daos.patch', when='@2.3:')
+    patch('mvapich2_ad_daos_020220.patch', when='@2.3:')
 
     @classmethod
     def determine_version(cls, exe):
@@ -319,7 +319,6 @@ class Mvapich2(AutotoolsPackage):
 
         if 'file_systems=daos' in spec:
             opts.append('--with-daos={0}'.format(spec['daos'].prefix))
-            opts.append('--with-cart={0}'.format(spec['daos'].prefix))
 
         return opts
 

@@ -127,7 +127,8 @@ class Mvapich2(AutotoolsPackage):
     variant(
         "file_systems",
         description="List of the ROMIO file systems to activate",
-        values=auto_or_any_combination_of("lustre", "gpfs", "nfs", "ufs"),
+        values=auto_or_any_combination_of(
+            "lustre", "gpfs", "nfs", "ufs", "daos"),
     )
 
     depends_on("automake@1.15", type="build")  # needed for torque patch
@@ -145,6 +146,7 @@ class Mvapich2(AutotoolsPackage):
     depends_on("rdma-core", when="fabrics=nemesistcpib")
     depends_on("rdma-core", when="fabrics=nemesisibtcp")
     depends_on("libfabric", when="fabrics=nemesisofi")
+    depends_on('daos', when='file_systems=daos')
     depends_on("slurm", when="process_managers=slurm")
     depends_on("pmix", when="pmi_version=pmix")
 
@@ -152,11 +154,20 @@ class Mvapich2(AutotoolsPackage):
     # <https://lists.osu.edu/pipermail/mvapich-discuss/2023-January/010695.html>.
     patch("mpir_attr_delete_list_segfault.patch", when="@2.3.7")
 
+    # building with "file_systems=daos' requires regenerating autotools files
+    depends_on('automake@1.15:', when='file_systems=daos', type="build")
+    depends_on('libtool@2.4.4:', when='file_systems=daos', type="build")
+    depends_on('m4', when='file_systems=daos', type="build"),
+    depends_on('autoconf@2.67:', when='file_systems=daos', type="build")
+
     conflicts("fabrics=psm2", when="@:2.1")  # psm2 support was added at version 2.2
 
     patch("fix-torque.patch", when="@2.3.7-1")
 
     filter_compiler_wrappers("mpicc", "mpicxx", "mpif77", "mpif90", "mpifort", relative_root="bin")
+
+    # Add support for daos adio driver
+    patch('mvapich2_ad_daos_020220.patch', when='@2.3:')
 
     @classmethod
     def determine_version(cls, exe):
@@ -252,7 +263,7 @@ class Mvapich2(AutotoolsPackage):
                         variants += " fabrics=psm2"
 
             used_fs = []
-            for fs in ("lustre", "gpfs", "nfs", "ufs"):
+            for fs in ("lustre", "gpfs", "nfs", "ufs", "daos"):
                 if re.search("--with-file-system=[a-zA-Z0-9+]*" + fs, output):
                     used_fs.append(fs)
             if used_fs:
@@ -337,13 +348,16 @@ class Mvapich2(AutotoolsPackage):
         spec = self.spec
 
         fs = []
-        for x in ("lustre", "gpfs", "nfs", "ufs"):
+        for x in ("lustre", "gpfs", "nfs", "ufs", "daos"):
             if "file_systems={0}".format(x) in spec:
                 fs.append(x)
 
         opts = []
         if len(fs) > 0:
             opts.append("--with-file-system=%s" % "+".join(fs))
+
+        if 'file_systems=daos' in spec:
+            opts.append('--with-daos={0}'.format(spec['daos'].prefix))
 
         return opts
 

@@ -22,6 +22,7 @@ class Mvapich2(AutotoolsPackage):
     executables = ['^mpiname$']
 
     # Prefer the latest stable release
+    version('2.3.5', sha256='f9f467fec5fc981a89a7beee0374347b10c683023c76880f92a1a0ad4b961a8c')
     version('2.3.4', sha256='7226a45c7c98333c8e5d2888119cce186199b430c13b7b1dca1769909e68ea7a')
     version('2.3.3', sha256='41d3261be57e5bc8aabf4e32981543c015c5443ff032a26f18205985e18c2b73')
     version('2.3.2', sha256='30cc0d7bcaa075d204692f76bca4d65a539e0f661c7460ffa9f835d6249e1ebf')
@@ -100,7 +101,7 @@ class Mvapich2(AutotoolsPackage):
     variant(
         'file_systems',
         description='List of the ROMIO file systems to activate',
-        values=auto_or_any_combination_of('lustre', 'gpfs', 'nfs', 'ufs'),
+        values=auto_or_any_combination_of('lustre', 'gpfs', 'nfs', 'ufs', 'daos'),
     )
 
     depends_on('findutils', type='build')
@@ -117,13 +118,23 @@ class Mvapich2(AutotoolsPackage):
     depends_on('rdma-core', when='fabrics=nemesistcpib')
     depends_on('rdma-core', when='fabrics=nemesisibtcp')
     depends_on('libfabric', when='fabrics=nemesisofi')
+    depends_on('daos', when='file_systems=daos')
     depends_on('slurm', when='process_managers=slurm')
+
+    # building with "file_systems=daos' requires regenerating autotools files
+    depends_on('automake@1.15:', when='file_systems=daos', type="build")
+    depends_on('libtool@2.4.4:', when='file_systems=daos', type="build")
+    depends_on('m4', when='file_systems=daos', type="build"),
+    depends_on('autoconf@2.67:', when='file_systems=daos', type="build")
 
     conflicts('fabrics=psm2', when='@:2.1')  # psm2 support was added at version 2.2
 
     filter_compiler_wrappers(
         'mpicc', 'mpicxx', 'mpif77', 'mpif90', 'mpifort', relative_root='bin'
     )
+
+    # Add support for daos adio driver
+    patch('mvapich2_ad_daos.patch', when='@2.3:')
 
     @classmethod
     def determine_version(cls, exe):
@@ -209,7 +220,7 @@ class Mvapich2(AutotoolsPackage):
                         variants += ' fabrics=psm2'
 
             used_fs = []
-            for fs in ('lustre', 'gpfs', 'nfs', 'ufs'):
+            for fs in ('lustre', 'gpfs', 'nfs', 'ufs', 'daos'):
                 if re.search(
                         '--with-file-system=[a-zA-Z0-9+]*' + fs,
                         output):
@@ -298,13 +309,17 @@ class Mvapich2(AutotoolsPackage):
         spec = self.spec
 
         fs = []
-        for x in ('lustre', 'gpfs', 'nfs', 'ufs'):
+        for x in ('lustre', 'gpfs', 'nfs', 'ufs', 'daos'):
             if 'file_systems={0}'.format(x) in spec:
                 fs.append(x)
 
         opts = []
         if len(fs) > 0:
             opts.append('--with-file-system=%s' % '+'.join(fs))
+
+        if 'file_systems=daos' in spec:
+            opts.append('--with-daos={0}'.format(spec['daos'].prefix))
+            opts.append('--with-cart={0}'.format(spec['daos'].prefix))
 
         return opts
 
@@ -376,7 +391,15 @@ class Mvapich2(AutotoolsPackage):
             os.path.join(self.prefix.lib, 'libmpi.{0}'.format(dso_suffix))
         ]
 
-    @run_before('configure')
+    def autoreconf(self, spec, prefix):
+        """Not needed usually, configure should be already there"""
+        if (not spec.satisfies('file_systems=daos')):
+            return
+        # Else bootstrap with autotools
+        bash = which('bash')
+        bash('./autogen.sh')
+
+    @run_before('autoreconf')
     def die_without_fortran(self):
         # Until we can pass variants such as +fortran through virtual
         # dependencies depends_on('mpi'), require Fortran compiler to

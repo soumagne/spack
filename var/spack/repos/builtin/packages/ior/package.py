@@ -22,6 +22,7 @@ class Ior(AutotoolsPackage):
 
     variant('hdf5',  default=False, description='support IO with HDF5 backend')
     variant('ncmpi', default=False, description='support IO with NCMPI backend')
+    variant('daos',  default=False, description='support IO with DAOS backend')
 
     depends_on('autoconf', type='build')
     depends_on('automake', type='build')
@@ -30,12 +31,17 @@ class Ior(AutotoolsPackage):
     depends_on('mpi')
     depends_on('hdf5+mpi', when='+hdf5')
     depends_on('parallel-netcdf', when='+ncmpi')
+    depends_on('daos', when='+daos')
 
     # The build for 3.2.0 fails if hdf5 is enabled
     # See https://github.com/hpc/ior/pull/124
     patch('https://github.com/hpc/ior/commit/1dbca5c293f95074f9887ddb2043fa984670fb4d.patch',
           sha256='f28d6638a74a09e147e9fa870930e54a82ff580d1c232add47a67c375e255ada',
           when='@3.2.0 +hdf5')
+
+    patch('hdf5-fixes.patch', when='@develop')
+    patch('hdf5-async.patch', when='@develop')
+    patch('hdf5-rep.patch', when='@develop')
 
     @run_before('autoreconf')
     def bootstrap(self):
@@ -57,5 +63,10 @@ class Ior(AutotoolsPackage):
             config_args.append('--with-ncmpi')
         else:
             config_args.append('--without-ncmpi')
+
+        if '+daos' in spec:
+            config_args.append('--with-daos')
+        else:
+            config_args.append('--without-daos')
 
         return config_args

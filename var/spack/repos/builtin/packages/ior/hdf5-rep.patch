@@ -1,0 +1,31 @@
+From 96af0bea5ec33c540bd9399babf8383afb2283f9 Mon Sep 17 00:00:00 2001
+From: Jerome Soumagne <jsoumagne@hdfgroup.org>
+Date: Wed, 28 Apr 2021 11:59:51 -0500
+Subject: [PATCH 3/3] Force one iteration
+
+---
+ src/ior.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/ior.c b/src/ior.c
+index 9dc4b25..9bb26f5 100755
+--- a/src/ior.c
++++ b/src/ior.c
+@@ -1194,6 +1194,14 @@ static void TestIoSys(IOR_test_t *test)
+         }
+ 
+         for (rep = 0; rep < params->repetitions; rep++) {
++{
++        static int i = 0;
++        /* Force one rep */
++        if (rep == 1 && i == 0) {
++                rep = 0;
++                i++;
++        }
++}
+                 /* Get iteration start time in seconds in task 0 and broadcast to
+                    all tasks */
+                 if (rank == 0) {
+-- 
+2.26.3
+

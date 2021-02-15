@@ -40,6 +40,7 @@ class Ior(AutotoolsPackage):
           when='@3.2.0 +hdf5')
 
     patch('hdf5-daos.patch', when='@develop')
+    patch('hdf5-space.patch', when='@develop')
 
     @run_before('autoreconf')
     def bootstrap(self):

@@ -1,0 +1,49 @@
+From 9343ce211ceeaebbcf072057c0b8563e33370711 Mon Sep 17 00:00:00 2001
+From: Jerome Soumagne <jsoumagne@hdfgroup.org>
+Date: Tue, 27 Apr 2021 17:54:27 -0500
+Subject: [PATCH 3/3] Force one iteration
+
+---
+ src/ior.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/src/ior.c b/src/ior.c
+index 9dc4b25..855601e 100755
+--- a/src/ior.c
++++ b/src/ior.c
+@@ -1193,6 +1193,10 @@ static void TestIoSys(IOR_test_t *test)
+           }
+         }
+ 
++        fd = backend->create(testFileName, IOR_WRONLY | IOR_CREAT | IOR_TRUNC, params->backend_options);
++        dataMoved = WriteOrRead(params, NULL, fd, WRITE, &ioBuffers);
++        backend->close(fd, params->backend_options);
++
+         for (rep = 0; rep < params->repetitions; rep++) {
+                 /* Get iteration start time in seconds in task 0 and broadcast to
+                    all tasks */
+@@ -1708,7 +1712,10 @@ static IOR_offset_t WriteOrRead(IOR_param_t *test, IOR_results_t *results,
+         double startForStonewall;
+         int hitStonewall;
+         int i, j;
+-        IOR_point_t *point = ((access == WRITE) || (access == WRITECHECK)) ?
++        IOR_point_t *point = NULL;
++
++        if (results)
++            point = ((access == WRITE) || (access == WRITECHECK)) ?
+                              &results->write : &results->read;
+ 
+         /* initialize values */
+@@ -1785,6 +1792,9 @@ static IOR_offset_t WriteOrRead(IOR_param_t *test, IOR_results_t *results,
+             }
+           }
+         }
++        if (!point) {
++                /* Nothing */
++        } else
+         if (test->stoneWallingWearOut){
+           if (verbose >= VERBOSE_1){
+             fprintf(out_logfile, "%d: stonewalling pairs accessed: %lld\n", rank, (long long) pairCnt);
+-- 
+2.26.3
+

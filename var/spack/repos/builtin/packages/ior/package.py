@@ -41,7 +41,7 @@ class Ior(AutotoolsPackage):
 
     patch('hdf5-fixes.patch', when='@develop')
     patch('hdf5-async.patch', when='@develop')
-    patch('hdf5-force.patch', when='@develop')
+    patch('hdf5-rep.patch', when='@develop')
 
     @run_before('autoreconf')
     def bootstrap(self):

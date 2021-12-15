@@ -35,6 +35,8 @@ class Hdf5(CMakePackage):
     version('develop-1.10', branch='hdf5_1_10')
     version('develop-1.8', branch='hdf5_1_8')
 
+    version('1.13.1', sha256='051655873105112f7aeccd5f59ab21f35f7f4907f06921ae61aaf1ef1c71fd53')
+    version('1.13.0', sha256='3049faf900f0c52e09ea4cddfb83af057615f2fc1cc80eb5202dd57b09820115')
     version('1.12.1', sha256='79c66ff67e666665369396e9c90b32e238e501f345afd2234186bfb8331081ca')
     version('1.12.0', sha256='a62dcb276658cb78e6795dd29bf926ed7a9bc4edf6e77025cd2c689a8f97c17a')
     # HDF5 1.12 broke API compatibility, so we currently prefer the latest
@@ -74,6 +76,7 @@ class Hdf5(CMakePackage):
     variant('tools', default=True, description='Enable building tools')
     variant('mpi', default=True, description='Enable MPI support')
     variant('szip', default=False, description='Enable szip support')
+    variant('map', default=False, when='@1.12.0:', description='Enable map API support')
     # Build HDF5 with API compatibility.
     variant('api', default='default',
             description='Choose api compatibility for earlier version',
@@ -355,6 +358,7 @@ class Hdf5(CMakePackage):
             self.define_from_variant('HDF5_ENABLE_SZIP_ENCODING', 'szip'),
             self.define_from_variant('BUILD_SHARED_LIBS', 'shared'),
             self.define('ONLY_SHARED_LIBS', False),
+            self.define_from_variant('HDF5_ENABLE_MAP_API', 'map'),
             self.define_from_variant('HDF5_ENABLE_PARALLEL', 'mpi'),
             self.define_from_variant('HDF5_ENABLE_THREADSAFE', 'threadsafe'),
             self.define_from_variant('HDF5_BUILD_HL_LIB', 'hl'),

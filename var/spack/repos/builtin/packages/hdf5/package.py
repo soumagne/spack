@@ -76,6 +76,7 @@ class Hdf5(CMakePackage):
     variant('tools', default=True, description='Enable building tools')
     variant('mpi', default=True, description='Enable MPI support')
     variant('szip', default=False, description='Enable szip support')
+    variant('map', default=False, when='@1.12.0:', description='Enable map API support')
     # Build HDF5 with API compatibility.
     variant('api', default='default',
             description='Choose api compatibility for earlier version',
@@ -366,6 +367,7 @@ class Hdf5(CMakePackage):
             self.define_from_variant('HDF5_ENABLE_SZIP_ENCODING', 'szip'),
             self.define_from_variant('BUILD_SHARED_LIBS', 'shared'),
             self.define('ONLY_SHARED_LIBS', False),
+            self.define_from_variant('HDF5_ENABLE_MAP_API', 'map'),
             self.define_from_variant('HDF5_ENABLE_PARALLEL', 'mpi'),
             self.define_from_variant('HDF5_ENABLE_THREADSAFE', 'threadsafe'),
             self.define_from_variant('HDF5_BUILD_HL_LIB', 'hl'),

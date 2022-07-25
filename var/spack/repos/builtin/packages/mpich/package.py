@@ -205,7 +205,6 @@ with '-Wl,-commons,use_dylibs' and without
     depends_on('libxml2', when='@3.3:+libxml2')
 
     depends_on('daos', when='+daos')
-    depends_on('cart', when='+daos^daos@:1.0.0')
 
     # Starting with version 3.3, Hydra can use libslurm for nodelist parsing
     depends_on('slurm', when='+slurm')
@@ -500,12 +499,6 @@ with '-Wl,-commons,use_dylibs' and without
             config_args.append('--with-daos={0}'.format(
                 spec['daos'].prefix))
             config_args.append('--with-file-system=ufs+daos')
-
-        if '+daos^daos@:1.0.0' in spec:
-            config_args.append('--with-cart={0}'.format(
-                spec['cart'].prefix))
-
-        if '+daos^daos@1.1.0:' in spec:
             config_args.append('--with-cart={0}'.format(
                 spec['daos'].prefix))
 

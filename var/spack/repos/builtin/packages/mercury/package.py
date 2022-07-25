@@ -16,6 +16,7 @@ class Mercury(CMakePackage):
     maintainers = ['soumagne']
     tags = ['e4s']
     version('master', branch='master', submodules=True)
+    version('2.2.0rc6', sha256='5219ae0f6cbc3cc1bfcb6a76b77a7dae11b61d22e5db670fe3e8a9524015cf26')
     version('2.1.0', sha256='9a58437161e9273b1b1c484d2f1a477a89eea9afe84575415025d47656f3761b')
     version('2.0.1', sha256='335946d9620ac669643ffd9861a5fb3ee486834bab674b7779eaac9d6662e3fa')
     version('2.0.0', sha256='9e80923712e25df56014309df70660e828dbeabbe5fcc82ee024bcc86e7eb6b7')

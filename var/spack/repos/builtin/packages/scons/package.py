@@ -6,7 +6,7 @@
 from spack.package import *
 
 
-class Scons(PythonPackage):
+class Scons(Package):
     """SCons is a software construction tool"""
 
     homepage = "https://scons.org"

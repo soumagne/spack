@@ -31,6 +31,7 @@ class IsaLCrypto(AutotoolsPackage):
     version("master", branch="master")
 
     # Current
+    version("2.25.0", sha256="afe013e8eca17c9a0e567709c6a967f6b2b497d5317914afc98d5969599ee87e")
     version("2.24.0", sha256="1b2d5623f75c94562222a00187c7a9de010266ab7f76e86b553b68bb654d39be")
     version("2.23.0", sha256="4827bc3e281d19a434deaa17a172f22f38c113ffc65f5df4348062165cb89eb8")
     version("2.22.0", sha256="c6503b455bdf0efcad74fdae4e9b30465e0e208cff2b0b34fd8f471553455527")
